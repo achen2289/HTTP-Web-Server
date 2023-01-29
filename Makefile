@@ -1,13 +1,14 @@
 CC=gcc
 CFLAGS=-I.
 DEPS=
-OBJ=server.o tcp.o
+OBJ=http.o server.o tcp.o
 USERID=123456789
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 all: server
+
 server: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 

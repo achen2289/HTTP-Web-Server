@@ -1,15 +1,17 @@
+#include "http.h"
 #include "tcp.h"
-#define server_msg_size 2000
-#define client_msg_size 2000
+
+#define SERVER_MSG_SIZE 2000
+#define CLIENT_MSG_SIZE 2000
 
 int main() {
   int socket_fd, client_sock, client_size;
   struct sockaddr_in client_addr;
-  char server_msg[server_msg_size], client_msg[client_msg_size];
+  char server_msg[SERVER_MSG_SIZE], client_msg[CLIENT_MSG_SIZE];
 
   // Clean buffers
-  memset(server_msg, '\0', sizeof(char) * server_msg_size);
-  memset(client_msg, '\0', sizeof(char) * client_msg_size);
+  memset(server_msg, '\0', sizeof(char) * SERVER_MSG_SIZE);
+  memset(client_msg, '\0', sizeof(char) * CLIENT_MSG_SIZE);
 
   socket_fd = establish_server_port();
   if (socket_fd == -1) {
@@ -43,6 +45,8 @@ int main() {
     return -1;
   }
   printf("Msg from client: %s\n", client_msg);
+
+  Request *client_request = parse_request(client_msg);
 
   // Respond to client:
   strcpy(server_msg, "This is the server's message.");
