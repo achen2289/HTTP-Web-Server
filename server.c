@@ -28,8 +28,8 @@ int main() {
 
   // accept an incoming connection from client
   client_size = sizeof(client_addr);
-  client_sock =
-      accept(socket_fd, (struct sockaddr *)&client_addr, &client_size);
+  client_sock = accept(socket_fd, (struct sockaddr *)&client_addr,
+                       (unsigned int *)&client_size);
 
   if (client_sock == -1) {
     printf("Can't accept\n");
@@ -52,18 +52,18 @@ int main() {
     return -1;
   }
 
-  char* url = response(client_request);
-  printf("Client request url: %s\n", url);
-
   // response to client
+  strcpy(server_msg, response(client_request));
   if (send(client_sock, server_msg, strlen(server_msg), 0) < 0) {
     printf("Can't send\n");
     return -1;
   }
 
-  free(client_request);
   // close sockets for both server and client
+  free(client_request);
+
   close(client_sock);
   close(socket_fd);
+
   return 0;
 }

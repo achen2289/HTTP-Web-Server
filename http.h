@@ -3,19 +3,19 @@
 #include <string.h>
 
 typedef struct Request {
-    char *method;
-    char *request_url;
-    char *http_version;
-    struct Header *headers;
-    char *body;
+  char *method;
+  char *request_url;
+  char *http_version;
+  struct Header *headers;
+  char *body;
 } Request;
 
 typedef struct Header {
-	char *key;
-	char *value;
-	struct Header *next;
+  char *key;
+  char *value;
+  struct Header *next;
 } Header;
 
 Request *parse_request(char *request);
 
-char* response(const Request *client_request);
+char *response(const Request *client_request);
