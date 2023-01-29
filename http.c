@@ -49,6 +49,7 @@ Request *parse_request(char *raw_request) {
 	return request;
 }
 
-void response(const Request *client_request) {
+char* response(const Request *client_request) {
 	printf("Client request url: %s\n", client_request->request_url);
+	return client_request->request_url;
 }

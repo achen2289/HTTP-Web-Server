@@ -18,4 +18,4 @@ typedef struct Header {
 
 Request *parse_request(char *request);
 
-void response(const Request *client_request);
+char* response(const Request *client_request);

@@ -15,7 +15,7 @@ int main() {
 
   socket_fd = establish_server_port();
   if (socket_fd == -1) {
-    printf("Could not establish tcp port");
+    printf("\nCould not establish tcp port\n");
     return -1;
   }
 
@@ -47,10 +47,13 @@ int main() {
 
   // parse the client request
   Request *client_request = parse_request(client_msg);
-  // This works
-  printf("Client request url: %s\n", client_request->request_url);
-  // But this does not
-  // response(client_request);
+  if (client_request == NULL) {
+    printf("paring failed\n");
+    return -1;
+  }
+
+  char* url = response(client_request);
+  printf("Client request url: %s\n", url);
 
   // response to client
   if (send(client_sock, server_msg, strlen(server_msg), 0) < 0) {
@@ -62,6 +65,5 @@ int main() {
   // close sockets for both server and client
   close(client_sock);
   close(socket_fd);
-
   return 0;
 }
