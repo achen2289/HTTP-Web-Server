@@ -4,4 +4,4 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-int establish_tcp_port();
+int establish_server_port();

@@ -11,7 +11,7 @@ int main() {
   memset(server_msg, '\0', sizeof(char) * server_msg_size);
   memset(client_msg, '\0', sizeof(char) * client_msg_size);
 
-  socket_fd = establish_tcp_port();
+  socket_fd = establish_server_port();
   if (socket_fd == -1) {
     printf("Could not establish tcp port");
     return -1;
