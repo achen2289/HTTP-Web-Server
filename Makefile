@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-I.
 DEPS=
-OBJ=server.o
+OBJ=server.o tcp.o
 USERID=123456789
 
 %.o: %.c $(DEPS)
