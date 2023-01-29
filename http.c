@@ -11,8 +11,8 @@ Request *parse_request(char *raw_request) {
 	char *method = strtok(raw_request, " ");
 	request->method = method;
 
-	char *request_uri = strtok(NULL, " ");
-	request->request_uri = request_uri;
+	char *request_url = strtok(NULL, " ");
+	request->request_url = request_url;
 
 	char *http_version = strtok(NULL, "\r\n");
 	request->http_version = http_version;
@@ -49,3 +49,6 @@ Request *parse_request(char *raw_request) {
 	return request;
 }
 
+void response(const Request *client_request) {
+	printf("Client request url: %s\n", client_request->request_url);
+}

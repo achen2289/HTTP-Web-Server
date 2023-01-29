@@ -4,7 +4,7 @@
 
 typedef struct Request {
     char *method;
-    char *request_uri;
+    char *request_url;
     char *http_version;
     struct Header *headers;
     char *body;
@@ -18,3 +18,4 @@ typedef struct Header {
 
 Request *parse_request(char *request);
 
+void response(const Request *client_request);
