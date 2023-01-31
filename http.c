@@ -57,13 +57,15 @@ void find_and_replace(char *source, char *dest, char *find, char *replace) {
   const char *temp_source = source;
   memset(proc_source, '\0', sizeof(char) * 2048);
 
-  for (char *first = strstr(temp_source, find); first != NULL;
-       first = strstr(temp_source, find)) {
-    memcpy(ptr, temp_source, first - temp_source);
-    ptr += (first - temp_source);
-    memcpy(ptr, replace, 1);
-    ptr += 1;
-    temp_source = first + 3;
+  for (int i = 0; temp_source[i] != '\0'; i++) {
+		char *loc = strstr(&temp_source[i], find);
+		if (loc != NULL) {
+			strncpy(ptr, temp_source, (loc - temp_source) / sizeof(char));
+    	ptr += (loc - temp_source) / sizeof(char);
+    	strncpy(ptr, replace, 1);
+    	ptr += 1;
+    	temp_source = loc + 3;
+		}
   }
   strcpy(ptr, temp_source);
 	strcpy(dest, proc_source);
