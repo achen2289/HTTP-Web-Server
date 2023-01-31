@@ -15,16 +15,16 @@ int main() {
 
   socket_fd = establish_server_port();
   if (socket_fd == -1) {
-    printf("\nCould not establish tcp port\n");
+    puts("\nCould not establish tcp port\n");
     return -1;
   }
 
   // listen to clients
   if (listen(socket_fd, 1) == -1) {
-    printf("Error while listening\n");
+    puts("Error while listening\n");
     return -1;
   }
-  printf("\nListening for incoming connections.....\n");
+  puts("\nListening for incoming connections.....\n");
 
   // accept an incoming connection from client
   client_size = sizeof(client_addr);
@@ -32,7 +32,7 @@ int main() {
                        (unsigned int *)&client_size);
 
   if (client_sock == -1) {
-    printf("Can't accept\n");
+    puts("Can't accept\n");
     return -1;
   }
   printf("Client connected at IP: %s and port: %i\n",
@@ -40,7 +40,7 @@ int main() {
 
   // receive client's message
   if (recv(client_sock, client_msg, sizeof(client_msg), 0) < 0) {
-    printf("Couldn't receive\n");
+    puts("Couldn't receive\n");
     return -1;
   }
   printf("Msg from client: %s\n", client_msg);
@@ -48,14 +48,21 @@ int main() {
   // parse the client request
   Request *client_request = parse_request(client_msg);
   if (client_request == NULL) {
-    printf("paring failed\n");
+    puts("paring failed\n");
     return -1;
   }
 
   // response to client
-  strcpy(server_msg, response(client_request));
+  char* server_response = response(client_request);
+
+  if (server_response == NULL) {
+    puts("Unable to create http response from given client request\n");
+    return -1;
+  }
+
+  strcpy(server_msg, server_response);
   if (send(client_sock, server_msg, strlen(server_msg), 0) < 0) {
-    printf("Can't send\n");
+    puts("Can't send\n");
     return -1;
   }
 

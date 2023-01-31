@@ -1,4 +1,5 @@
 #include "http.h"
+#include "response.h"
 
 Request *parse_request(char *raw_request) {
   // Allocate memory for struct containing Request details
@@ -11,8 +12,8 @@ Request *parse_request(char *raw_request) {
   char *method = strtok(raw_request, " ");
   request->method = method;
 
-  char *request_url = strtok(NULL, " ");
-  request->request_url = request_url;
+  char *request_uri = strtok(NULL, " ");
+  request->request_uri = request_uri;
 
   char *http_version = strtok(NULL, "\r\n");
   request->http_version = http_version;
@@ -50,7 +51,32 @@ Request *parse_request(char *raw_request) {
 }
 
 char *response(const Request *client_request) {
-  printf("Client request url: %s\n", client_request->request_url);
-	char* ending = "\n\r";
-  return strcat(client_request->request_url, ending);
+  char *uri = client_request->request_uri;
+
+  // change %20 to white spaces in filename
+  char proc_uri[2048];
+  char *ptr = &proc_uri[0];
+  const char *temp_uri = uri;
+  memset(proc_uri, '\0', sizeof(char) * 2048);
+
+  for (char *find = strstr(uri, "%20"); find != NULL;
+       find = strstr(temp_uri, "%20")) {
+    memcpy(ptr, temp_uri, find - temp_uri);
+    ptr += (find - temp_uri);
+    memcpy(ptr, " ", 1);
+    ptr += 1;
+    temp_uri = find + 3;
+  }
+  strcpy(ptr, temp_uri);
+
+  // open file
+  FILE *fp;
+  if ((fp = fopen(proc_uri + 1, "r")) == NULL) {
+    puts("Can't open file with the given uri");
+    return NULL;
+  }
+
+  fclose(fp);
+
+  return NULL;
 }
