@@ -111,7 +111,7 @@ int response(const Request *client_request, char *server_msg) {
   // TODO: set status based on content result
   char *status = SUCCESS;
 
-  // TODO: is it always close?
+  // TODO: is it always close? idk
   char *connection = CONNECTION_CLOSE;
 
   time_t t = time(NULL);
@@ -124,7 +124,10 @@ int response(const Request *client_request, char *server_msg) {
   char *server = SERVER;
 
   struct stat attr;
-  stat(filename, &attr);
+  if (stat(filename, &attr) == -1) {
+    puts("stat error");
+    return -1;
+  }
   char *lmtime = asctime(gmtime(&(attr.st_mtime)));
   lmtime[strlen(lmtime) - 1] = '\0';
   char last_modified[50] = "Last-Modified: ";
@@ -132,12 +135,7 @@ int response(const Request *client_request, char *server_msg) {
   strcat(last_modified, " GMT\r\n");
 
   long long content_length;
-  if (stat(filename, &attr) == -1) {
-    puts("stat error");
-    return -1;
-  } else {
-    content_length = (long long)attr.st_size;
-  }
+  content_length = (long long)attr.st_size;
   char content_length_str[256];
   sprintf(content_length_str, "Content-Length: %lld\r\n", content_length);
 
@@ -169,6 +167,6 @@ int response(const Request *client_request, char *server_msg) {
   memcpy(response + header, file_content, content_length);
   memcpy(server_msg, response, header + content_length);
 
-	free(file_content);
+  free(file_content); // memory leaks bad
   return header + content_length;
 }
