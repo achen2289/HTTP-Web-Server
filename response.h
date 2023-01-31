@@ -6,5 +6,6 @@
 #define BIN "Content-Type: application/octet-stream\r\n"
 
 #define SUCCESS "HTTP/1.1 200 OK\r\n"
+#define CONNECTION_KEEP_ALIVE "Connection: keep-alive\r\n"
 #define CONNECTION_CLOSE "Connection: close\r\n"
 #define SERVER "Server: Alex/Gordon/1.1 (UCLA)\r\n"

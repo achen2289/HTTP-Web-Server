@@ -112,7 +112,7 @@ int response(const Request *client_request, char *server_msg) {
   char *status = SUCCESS;
 
   // TODO: is it always close? idk
-  char *connection = CONNECTION_CLOSE;
+  char *connection = CONNECTION_KEEP_ALIVE;
 
   time_t t = time(NULL);
   char *time = asctime(gmtime(&t));
