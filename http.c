@@ -50,26 +50,35 @@ Request *parse_request(char *raw_request) {
   return request;
 }
 
+// we assume find is 3 chars long and replaced is 1 char long
+void find_and_replace(char *source, char *dest, char *find, char *replace) {
+	char proc_source[2048];
+  char *ptr = &proc_source[0];
+  const char *temp_source = source;
+  memset(proc_source, '\0', sizeof(char) * 2048);
+
+  for (char *first = strstr(temp_source, find); first != NULL;
+       first = strstr(temp_source, find)) {
+    memcpy(ptr, temp_source, first - temp_source);
+    ptr += (first - temp_source);
+    memcpy(ptr, replace, 1);
+    ptr += 1;
+    temp_source = first + 3;
+  }
+  strcpy(ptr, temp_source);
+	strcpy(dest, proc_source);
+}
+
 char *response(const Request *client_request) {
   char *uri = client_request->request_uri;
 
-  // change %20 to white spaces in filename
+  // change %20 to white spaces and %25 to % in filename
   char proc_uri[2048];
-  char *ptr = &proc_uri[0];
-  const char *temp_uri = uri;
-  memset(proc_uri, '\0', sizeof(char) * 2048);
-
-  for (char *find = strstr(uri, "%20"); find != NULL;
-       find = strstr(temp_uri, "%20")) {
-    memcpy(ptr, temp_uri, find - temp_uri);
-    ptr += (find - temp_uri);
-    memcpy(ptr, " ", 1);
-    ptr += 1;
-    temp_uri = find + 3;
-  }
-  strcpy(ptr, temp_uri);
-
-  // open file
+	find_and_replace(uri, proc_uri, "%20", " ");
+	find_and_replace(proc_uri, proc_uri, "%25", "%");
+	puts(proc_uri);
+  
+	// open file
   FILE *fp;
   if ((fp = fopen(proc_uri + 1, "r")) == NULL) {
     puts("Can't open file with the given uri");
