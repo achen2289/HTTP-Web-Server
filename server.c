@@ -1,7 +1,7 @@
 #include "http.h"
 #include "tcp.h"
 
-#define SERVER_MSG_SIZE 102400
+#define SERVER_MSG_SIZE 1024000
 #define CLIENT_MSG_SIZE 2000
 
 int main() {
@@ -53,14 +53,15 @@ int main() {
   }
 
   // response to client
-  if (response(client_request, server_msg) == -1) {
+  int length = response(client_request, server_msg);
+  if (length == -1) {
     puts("Unable to create http response from given client request\n");
     return -1;
   }
 
   puts(server_msg);
 
-  if (send(client_sock, server_msg, strlen(server_msg), 0) < 0) {
+  if (send(client_sock, server_msg, length, 0) < 0) {
     puts("Can't send\n");
     return -1;
   }

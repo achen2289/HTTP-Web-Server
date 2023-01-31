@@ -90,8 +90,7 @@ int response(const Request *client_request, char *server_msg) {
   if (fp == NULL) {
     puts("Can't open file with the given uri");
     return -1;
-  }
-  else {
+  } else {
     fseek(fp, 0, SEEK_END);
     length = ftell(fp);
     fseek(fp, 0, SEEK_SET);
@@ -103,16 +102,15 @@ int response(const Request *client_request, char *server_msg) {
     fread(file_content, 1, length, fp);
     fclose(fp);
   }
-  
 
   // Content of the response
-  // where's this upper limit from? (1MB?)
-  char response[102400];
-  memset(response, '\0', sizeof(char) * 102400);
+  // where's this upper limit from? (1MB?) yeah
+  char response[1024000];
+  memset(response, '\0', sizeof(char) * 1024000);
 
   // TODO: set status based on content result
   char *status = SUCCESS;
-  
+
   // TODO: is it always close?
   char *connection = CONNECTION_CLOSE;
 
@@ -137,9 +135,8 @@ int response(const Request *client_request, char *server_msg) {
   if (stat(filename, &attr) == -1) {
     puts("stat error");
     return -1;
-  }
-  else {
-    content_length = (long long) attr.st_size;
+  } else {
+    content_length = (long long)attr.st_size;
   }
   char content_length_str[256];
   sprintf(content_length_str, "Content-Length: %lld\r\n", content_length);
@@ -156,7 +153,7 @@ int response(const Request *client_request, char *server_msg) {
   } else if (strstr(filename, ".pdf")) {
     strcpy(content_type, PDF);
   } else {
-    strcpy(content_type, BINARY);
+    strcpy(content_type, BIN);
   }
 
   strcat(response, status);
@@ -167,9 +164,11 @@ int response(const Request *client_request, char *server_msg) {
   strcat(response, content_length_str);
   strcat(response, content_type);
   strcat(response, "\r\n");
-  strcat(response, file_content);
-  
-  strcpy(server_msg, response);
-  
-  return 0;
+
+  int header = strlen(response);
+  memcpy(response + header, file_content, content_length);
+  memcpy(server_msg, response, header + content_length);
+
+	free(file_content);
+  return header + content_length;
 }
