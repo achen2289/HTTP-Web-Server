@@ -80,22 +80,40 @@ int response(const Request *client_request, char *server_msg) {
   find_and_replace(proc_uri, proc_uri, "%25", "%");
   puts(proc_uri);
   char *filename = proc_uri + 1;
+
   // open file
+  // TODO: behavior when no file given?
   FILE *fp;
-  fp = fopen(filename, "r");
+  fp = fopen(filename, "rb");
+  char *file_content = 0;
+  long length;
   if (fp == NULL) {
     puts("Can't open file with the given uri");
     return -1;
   }
-
-  fclose(fp);
+  else {
+    fseek(fp, 0, SEEK_END);
+    length = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    file_content = malloc(length);
+    if (file_content == NULL) {
+      puts("Cannot allocate memory to read file");
+      return -1;
+    }
+    fread(file_content, 1, length, fp);
+    fclose(fp);
+  }
+  
 
   // Content of the response
+  // where's this upper limit from? (1MB?)
   char response[102400];
   memset(response, '\0', sizeof(char) * 102400);
 
+  // TODO: set status based on content result
   char *status = SUCCESS;
-
+  
+  // TODO: is it always close?
   char *connection = CONNECTION_CLOSE;
 
   time_t t = time(NULL);
@@ -114,6 +132,17 @@ int response(const Request *client_request, char *server_msg) {
   char last_modified[50] = "Last-Modified: ";
   strcat(last_modified, lmtime);
   strcat(last_modified, " GMT\r\n");
+
+  long long content_length;
+  if (stat(filename, &attr) == -1) {
+    puts("stat error");
+    return -1;
+  }
+  else {
+    content_length = (long long) attr.st_size;
+  }
+  char content_length_str[256];
+  sprintf(content_length_str, "Content-Length: %lld\r\n", content_length);
 
   char content_type[50];
   if (strstr(filename, ".html")) {
@@ -135,8 +164,12 @@ int response(const Request *client_request, char *server_msg) {
   strcat(response, date);
   strcat(response, server);
   strcat(response, last_modified);
+  strcat(response, content_length_str);
   strcat(response, content_type);
-
+  strcat(response, "\r\n");
+  strcat(response, file_content);
+  
   strcpy(server_msg, response);
+  
   return 0;
 }
