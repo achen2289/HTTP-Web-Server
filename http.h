@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <sys/stat.h>
 
 typedef struct Request {
   char *method;
@@ -18,4 +20,4 @@ typedef struct Header {
 
 Request *parse_request(char *request);
 
-char *response(const Request *client_request);
+int response(const Request *client_request, char *server_msg);

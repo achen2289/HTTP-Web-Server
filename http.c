@@ -71,7 +71,7 @@ void find_and_replace(char *source, char *dest, char *find, char *replace) {
 	strcpy(dest, proc_source);
 }
 
-char *response(const Request *client_request) {
+int response(const Request *client_request, char *server_msg) {
   char *uri = client_request->request_uri;
 
   // change %20 to white spaces and %25 to % in filename
@@ -79,15 +79,64 @@ char *response(const Request *client_request) {
 	find_and_replace(uri, proc_uri, "%20", " ");
 	find_and_replace(proc_uri, proc_uri, "%25", "%");
 	puts(proc_uri);
-  
+  char *filename = proc_uri + 1;
 	// open file
   FILE *fp;
-  if ((fp = fopen(proc_uri + 1, "r")) == NULL) {
+  fp = fopen(filename, "r");
+	if (fp == NULL) {
     puts("Can't open file with the given uri");
-    return NULL;
+    return -1;
   }
 
   fclose(fp);
 
-  return NULL;
+	// Content of the response
+	char response [102400];
+	memset(response, '\0', sizeof(char)*102400);
+
+	char *status = SUCCESS;
+
+	char *connection = CONNECTION_CLOSE;
+
+	time_t t = time(NULL);
+	char* time = asctime(gmtime(&t));
+	time[strlen(time) - 1] = '\0';	
+	char date[50] = "Date: ";
+	strcat(date, time);
+	strcat(date, " GMT\r\n");
+
+	char *server = SERVER;
+	
+	struct stat attr;
+	stat(filename, &attr);
+	char *lmtime = asctime(gmtime(&(attr.st_mtime)));
+	lmtime[strlen(lmtime) - 1] = '\0';
+	char last_modified[50] = "Last-Modified: ";
+	strcat(last_modified, lmtime);
+	strcat(last_modified, " GMT\r\n");
+
+	char content_type[50];
+	if (strstr(filename, ".html")) {
+		strcpy(content_type, HTML);
+	} else if (strstr(filename, ".txt")) {
+		strcpy(content_type, TXT);
+	} else if (strstr(filename, ".jpg")) {
+		strcpy(content_type, JPG);
+	} else if (strstr(filename, ".png")) {
+		strcpy(content_type, PNG);
+	} else if (strstr(filename, ".pdf")) {
+		strcpy(content_type, PDF);
+	} else {
+		strcpy(content_type, BINARY);
+	}
+	
+	strcat(response, status);
+	strcat(response, connection);
+	strcat(response, date);
+	strcat(response, server);
+	strcat(response, last_modified);
+	strcat(response, content_type);
+
+	strcpy(server_msg, response);
+  return 0;
 }
