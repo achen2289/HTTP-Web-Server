@@ -9,17 +9,19 @@ int main() {
   struct sockaddr_in client_addr;
   char server_msg[SERVER_MSG_SIZE], client_msg[CLIENT_MSG_SIZE];
 
+  // establish server port for client to request
   socket_fd = establish_server_port();
   if (socket_fd == -1) {
-    puts("\nCould not establish tcp port\n");
+    puts("Could not establish tcp port");
     return -1;
   }
+
   // listen to clients
   if (listen(socket_fd, 1) == -1) {
-    puts("Error while listening\n");
+    puts("Error while listening");
     return -1;
   }
-  puts("\nListening for incoming connections.....\n");
+  puts("Listening for incoming connections...");
 
   Request *client_request = NULL;
   while (1) {
@@ -30,32 +32,31 @@ int main() {
     // accept an incoming connection from client
     client_size = sizeof(client_addr);
     client_sock = accept(socket_fd, (struct sockaddr *)&client_addr,
-                        (unsigned int *)&client_size);
+                         (unsigned int *)&client_size);
 
     if (client_sock == -1) {
-      puts("Can't accept\n");
+      puts("Unable to connect to client socket");
       return -1;
     }
     printf("Client connected at IP: %s and port: %i\n",
-            inet_ntoa(client_addr.sin_addr),
-            ntohs(client_addr.sin_port));
+           inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
     // receive client's message
-    int client_msg_result = recv(client_sock, client_msg, sizeof(client_msg), 0);
+    int client_msg_result =
+        recv(client_sock, client_msg, sizeof(client_msg), 0);
     if (client_msg_result == -1) {
-      puts("Couldn't receive\n");
+      puts("Unable to receive client message");
       return -1;
-    }
-    else if (client_msg_result == 0) {
-      puts("Peer has performed orderly shutdown\n");
+    } else if (client_msg_result == 0) {
+      puts("Peer has performed orderly shutdown");
       break;
     }
-    printf("Msg from client: %s\n", client_msg);
+    printf("Message from client: %s", client_msg);
 
     // parse the client request
     client_request = parse_request(client_msg);
     if (client_request == NULL) {
-      puts("Paring failed\n");
+      puts("Cannot parse client request");
       return -1;
     }
 
@@ -63,16 +64,12 @@ int main() {
     // don't exit even if error occurs so that we keep connection open
     int length = response(client_request, server_msg);
     if (length == -1) {
-      puts("Unable to create http response from given client request, keeping connection alive\n");
-      continue;
-      // return -1;
+      puts("Unable to create http response from given client request, keeping "
+           "connection alive");
     }
 
-    puts(server_msg);
-
     if (send(client_sock, server_msg, length, 0) < 0) {
-      puts("Can't send\n");
-      return -1;
+      puts("Can't send server response to client, keeping connection alive");
     }
   }
   // close sockets for both server and client
@@ -80,7 +77,6 @@ int main() {
 
   close(client_sock);
   close(socket_fd);
-  printf("alex");
 
   return 0;
 }

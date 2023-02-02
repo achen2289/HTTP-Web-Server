@@ -82,7 +82,8 @@ int response(const Request *client_request, char *server_msg) {
   char *filename = proc_uri + 1;
 
   // open file
-  // TODO: behavior when no file given?
+  // In this project, we will assume the request will always request something
+  // that exists in the root directory
   FILE *fp;
   fp = fopen(filename, "rb");
   char *file_content = 0;
@@ -104,14 +105,11 @@ int response(const Request *client_request, char *server_msg) {
   }
 
   // Content of the response
-  // where's this upper limit from? (1MB?) yeah
   char response[1024000];
   memset(response, '\0', sizeof(char) * 1024000);
 
-  // TODO: set status based on content result
   char *status = SUCCESS;
 
-  // TODO: is it always close? idk
   char *connection = CONNECTION_KEEP_ALIVE;
 
   time_t t = time(NULL);
@@ -125,7 +123,7 @@ int response(const Request *client_request, char *server_msg) {
 
   struct stat attr;
   if (stat(filename, &attr) == -1) {
-    puts("stat error");
+    puts("File stat error\n");
     return -1;
   }
   char *lmtime = asctime(gmtime(&(attr.st_mtime)));
@@ -164,6 +162,10 @@ int response(const Request *client_request, char *server_msg) {
   strcat(response, "\r\n");
 
   int header = strlen(response);
+  if (content_length > 1000000) {
+    puts("Content of the file requesting is too big (Max. 1Mb)");
+    return -1;
+  }
   memcpy(response + header, file_content, content_length);
   memcpy(server_msg, response, header + content_length);
 

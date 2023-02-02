@@ -12,10 +12,10 @@ int establish_server_port() {
   // Create socket file descriptor
   socket_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (socket_fd == -1) {
-    printf("Error when creating socket\n");
+    puts("Error when creating socket");
     return -1;
   }
-  printf("Socket created successfully\n");
+  puts("Socket created successfully");
 
   // Set the ip and the port
   server_addr.sin_family = AF_INET;
@@ -25,10 +25,10 @@ int establish_server_port() {
   // Bind the socket to the ip and port
   if (bind(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) ==
       -1) {
-    printf("Could not bind to the port\n");
+    puts("Could not bind to the port");
     return -1;
   }
-  printf("Binding Established\n");
+  puts("Binding Established");
 
   return socket_fd;
 }
